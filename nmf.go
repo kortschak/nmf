@@ -44,10 +44,6 @@ func Factors(V, Wo, Ho *mat64.Dense, c Config) (W, H *mat64.Dense, ok bool) {
 	W = Wo
 	H = Ho
 
-	var vT, hT, wT mat64.Dense
-	hT.TCopy(H)
-	wT.TCopy(W)
-
 	var (
 		wr, wc = W.Dims()
 		hr, hc = H.Dims()
@@ -57,17 +53,17 @@ func Factors(V, Wo, Ho *mat64.Dense, c Config) (W, H *mat64.Dense, ok bool) {
 
 	var vhT mat64.Dense
 	gW := mat64.NewDense(wr, wc, nil)
-	tmp.Mul(H, &hT)
+	tmp.MulTrans(H, false, H, true)
 	gW.Mul(W, &tmp)
-	vhT.Mul(V, &hT)
+	vhT.MulTrans(V, false, H, true)
 	gW.Sub(gW, &vhT)
 
 	var wTv mat64.Dense
 	gH := mat64.NewDense(hr, hc, nil)
 	tmp.Reset()
-	tmp.Mul(&wT, W)
+	tmp.MulTrans(W, true, W, false)
 	gH.Mul(&tmp, H)
-	wTv.Mul(&wT, V)
+	wTv.MulTrans(W, true, V, false)
 	gH.Sub(gH, &wTv)
 
 	var gHT, gWHT mat64.Dense
@@ -99,6 +95,7 @@ func Factors(V, Wo, Ho *mat64.Dense, c Config) (W, H *mat64.Dense, ok bool) {
 		return 0
 	}
 
+	var vT, hT, wT mat64.Dense
 	for i := 0; i < c.MaxIter; i++ {
 		gW.Apply(decFiltW, gW)
 		gH.Apply(decFiltH, gH)
@@ -152,10 +149,9 @@ func nnlsSubproblem(V, W, Ho *mat64.Dense, tol float64, outer, inner int) (H, G 
 	H = new(mat64.Dense)
 	H.Clone(Ho)
 
-	var wT, WtV, WtW mat64.Dense
-	wT.TCopy(W)
-	WtV.Mul(&wT, V)
-	WtW.Mul(&wT, W)
+	var WtV, WtW mat64.Dense
+	WtV.MulTrans(W, true, V, false)
+	WtW.MulTrans(W, true, W, false)
 
 	alpha, beta := 1., 0.1
 
