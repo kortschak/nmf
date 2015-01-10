@@ -10,9 +10,8 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/gonum/blas/cblas"
 	"github.com/gonum/matrix/mat64"
-	"github.com/gonum/matrix/mat64/nmf"
+	"github.com/kortschak/nmf"
 )
 
 func posNorm(_, _ int, _ float64) float64 { return math.Abs(rand.NormFloat64()) }
@@ -30,7 +29,6 @@ func (m f) Format(fs fmt.State, c rune) {
 }
 
 func ExampleFactors() {
-	mat64.Register(cblas.Blas{})
 	rand.Seed(1)
 
 	V := mat64.NewDense(3, 4, []float64{20, 0, 30, 0, 0, 16, 1, 9, 0, 10, 6, 11})
