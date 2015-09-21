@@ -16,23 +16,11 @@ import (
 
 func posNorm(_, _ int, _ float64) float64 { return math.Abs(rand.NormFloat64()) }
 
-type f struct {
-	*mat64.Dense
-}
-
-func (m f) Format(fs fmt.State, c rune) {
-	if c == 'v' && fs.Flag('#') {
-		fmt.Fprintf(fs, "%#v", m.Dense)
-		return
-	}
-	mat64.Format(m.Dense, 0, '.', fs, c)
-}
-
 func ExampleFactors() {
 	rand.Seed(1)
 
 	V := mat64.NewDense(3, 4, []float64{20, 0, 30, 0, 0, 16, 1, 9, 0, 10, 6, 11})
-	fmt.Printf("V =\n%.3f\n\n", f{V})
+	fmt.Printf("V =\n%.3f\n\n", mat64.Formatted(V))
 
 	categories := 5
 
@@ -59,8 +47,8 @@ func ExampleFactors() {
 	D.Sub(V, &P)
 
 	fmt.Printf("Successfully factorised: %v\n\n", ok)
-	fmt.Printf("W =\n%.3f\n\nH =\n%.3f\n\n", f{W}, f{H})
-	fmt.Printf("P =\n%.3f\n\n", f{&P})
+	fmt.Printf("W =\n%.3f\n\nH =\n%.3f\n\n", mat64.Formatted(W), mat64.Formatted(H))
+	fmt.Printf("P =\n%.3f\n\n", mat64.Formatted(&P))
 	fmt.Printf("delta = %.3f\n", D.Norm(0))
 
 	// Output:

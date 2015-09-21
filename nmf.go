@@ -67,7 +67,7 @@ func Factors(V, Wo, Ho *mat64.Dense, c Config) (W, H *mat64.Dense, ok bool) {
 	gH.Sub(gH, &wTv)
 
 	var gHT, gWHT mat64.Dense
-	gHT.TCopy(gH)
+	gHT.Clone(gH.T())
 	gWHT.Stack(gW, &gHT)
 
 	grad := gWHT.Norm(0)
@@ -112,20 +112,20 @@ func Factors(V, Wo, Ho *mat64.Dense, c Config) (W, H *mat64.Dense, ok bool) {
 			break
 		}
 
-		vT.TCopy(V)
-		hT.TCopy(H)
-		wT.TCopy(W)
+		vT.Clone(V.T())
+		hT.Clone(H.T())
+		wT.Clone(W.T())
 		W, gW, iter, ok = nnlsSubproblem(&vT, &hT, &wT, tolW, c.MaxOuterSub, c.MaxInnerSub)
 		if iter == 0 {
 			tolW *= 0.1
 		}
 
 		wT.Reset()
-		wT.TCopy(W)
+		wT.Clone(W.T())
 		W = &wT
 
 		var gWT mat64.Dense
-		gWT.TCopy(gW)
+		gWT.Clone(gW.T())
 		*gW = gWT
 
 		H, gH, iter, _ok = nnlsSubproblem(V, W, H, tolH, c.MaxOuterSub, c.MaxInnerSub)
@@ -204,7 +204,7 @@ func nnlsSubproblem(V, W, Ho *mat64.Dense, tol float64, outer, inner int) (H, G 
 					alpha *= beta
 				}
 			} else {
-				if !sufficient || Hp.Equals(&Hn) {
+				if !sufficient || mat64.Equal(Hp, &Hn) {
 					H = Hp
 					break
 				} else {
