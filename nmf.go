@@ -70,7 +70,7 @@ func Factors(V, Wo, Ho *mat64.Dense, c Config) (W, H *mat64.Dense, ok bool) {
 	gHT.Clone(gH.T())
 	gWHT.Stack(gW, &gHT)
 
-	grad := gWHT.Norm(0)
+	grad := mat64.Norm(&gWHT, 2)
 	tolW := math.Max(0.001, c.Tolerance) * grad
 	tolH := tolW
 
@@ -169,7 +169,7 @@ func nnlsSubproblem(V, W, Ho *mat64.Dense, tol float64, outer, inner int) (H, G 
 		G.Sub(G, &WtV)
 		G.Apply(decFilt, G)
 
-		if G.Norm(0) < tol {
+		if mat64.Norm(G, 2) < tol {
 			break
 		}
 
@@ -189,7 +189,7 @@ func nnlsSubproblem(V, W, Ho *mat64.Dense, tol float64, outer, inner int) (H, G 
 			dQ.MulElem(&dQ, &d)
 			d.MulElem(G, &d)
 
-			sufficient := 0.99*d.Sum()+0.5*dQ.Sum() < 0
+			sufficient := 0.99*mat64.Sum(&d)+0.5*mat64.Sum(&dQ) < 0
 
 			if j == 0 {
 				reduce = !sufficient

@@ -49,7 +49,7 @@ func ExampleFactors() {
 	fmt.Printf("Successfully factorised: %v\n\n", ok)
 	fmt.Printf("W =\n%.3f\n\nH =\n%.3f\n\n", mat64.Formatted(W), mat64.Formatted(H))
 	fmt.Printf("P =\n%.3f\n\n", mat64.Formatted(&P))
-	fmt.Printf("delta = %.3f\n", D.Norm(0))
+	fmt.Printf("delta = %.3f\n", mat64.Norm(&D, 2))
 
 	// Output:
 	// V =
